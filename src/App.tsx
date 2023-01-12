@@ -2,23 +2,61 @@ import { useMultistepForm } from "./useMultistepForm";
 import { UserForm } from "./UserForm";
 import { AddressForm } from "./AddressForm";
 import { AccountForm } from "./AcountForm";
-import { FormEvent } from "react";
+import { FormEvent, useState } from "react";
+
+export type FormData = {
+  firstName: string;
+  lastName: string;
+  age: string;
+  street: string;
+  city: string;
+  state: string;
+  zip: string;
+  email: string;
+  password: string;
+};
+
+const INITIAL_DATA: FormData = {
+  firstName: "",
+  lastName: "",
+  age: "",
+  street: "",
+  city: "",
+  state: "",
+  zip: "",
+  email: "",
+  password: "",
+};
+
 function App() {
-  const [state, setstate] = useState(initialState)
+  const [data, setData] = useState(INITIAL_DATA);
+
+  function updateFields(fields: Partial<FormData>) {
+    setData((prev) => ({
+      ...prev,
+      ...fields,
+    }));
+  }
+
   const {
     step,
-    steps,
     totalSteps,
     currentStepIndex,
     isFirstStep,
     isLastStep,
     next,
     back,
-  } = useMultistepForm([<UserForm />, <AddressForm />, <AccountForm />]);
+  } = useMultistepForm([
+    <UserForm {...data} updateFields={updateFields} />,
+    <AddressForm {...data} updateFields={updateFields} />,
+    <AccountForm {...data} updateFields={updateFields} />,
+  ]);
 
   const onSubmit = (event: FormEvent) => {
     event.preventDefault();
-    next();
+    if (!isLastStep) return next();
+
+    alert("Successful Account Creation");
   };
 
   return (
@@ -28,9 +66,10 @@ function App() {
         background: "white",
         border: "1px solid black",
         padding: "2rem",
-        margin: "1rem",
         borderRadius: ".5rem",
         fontFamily: "Arial",
+        maxWidth: "max-content",
+        margin: "auto",
       }}
     >
       <form onSubmit={onSubmit}>
@@ -50,8 +89,11 @@ function App() {
           <button type="button" onClick={back} disabled={isFirstStep}>
             Back
           </button>
-          <button type="submit">
-            {isLastStep ? "Finish" : "Next"}
-          </button>
+          <button type="submit">{isLastStep ? "Finish" : "Next"}</button>
         </div>
-  
+      </form>
+    </div>
+  );
+}
+
+export default App;
